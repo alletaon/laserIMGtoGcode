@@ -15,8 +15,9 @@ class Point:
         return f'Y{round(self.y * step, DECIMAL):.{DECIMAL}f}\n{self.ON_STR if self.state else self.OFF_STR}\n'
 
 class Line:
-    def __init__(self, x, data):
+    def __init__(self, x: int, data: list[int], reverse: bool):
         self.x = x
+        self.reverse = reverse
         self.set_points(data)
 
     def empty(self):
@@ -26,14 +27,13 @@ class Line:
         self.points.append(Point(y, state))
         return not state
 
-    def set_points(self, points):
+    def set_points(self, points: list[int]):
         self.points = []
         state = False
-        for y, p in enumerate(reversed(points)):
+        line = enumerate(reversed(points)) if self.reverse else enumerate(points)
+        for i, p in line:
             if (state and p == 255) or (not state and p == 0):
-                state = self._add_point(len(points) - 1 - y, state)
-        for y, p in enumerate(points):
-            if (state and p == 255) or (not state and p == 0):
+                y = len(points) - 1 - i if self.reverse else i
                 state = self._add_point(y, state)
         if state:
             self._add_point(len(points) - 1, False)

@@ -9,13 +9,19 @@ class Point:
         self.state = state
 
     def __str__(self):
-        return self.code(1.0)
+        return f'Y: {self.y}, State: {self.s}'
+
+    def __repr__(self) -> str:
+        return f'{self.y}:{self.state}'
+
+    def __eq__(self, o: object) -> bool:
+        return self.y == o.y and self.state == o.state
 
     def code(self, step: float) -> str:
         return f'Y{round(self.y * step, DECIMAL):.{DECIMAL}f}\n{self.ON_STR if self.state else self.OFF_STR}\n'
 
 class Line:
-    def __init__(self, x: int, data: list[int], reverse: bool):
+    def __init__(self, x: int, data: 'list[int]', reverse: bool):
         self.x = x
         self.reverse = reverse
         self.set_points(data)
@@ -24,19 +30,23 @@ class Line:
         return not bool(len(self.points))
 
     def _add_point(self, y, state):
-        self.points.append(Point(y, state))
-        return not state
+        new_state = not state
+        self.points.append(Point(y, new_state))
+        return new_state
 
-    def set_points(self, points: list[int]):
+    def set_points(self, points: 'list[int]'):
         self.points = []
         state = False
         line = enumerate(reversed(points)) if self.reverse else enumerate(points)
         for i, p in line:
             if (state and p == 255) or (not state and p == 0):
-                y = len(points) - 1 - i if self.reverse else i
+                y = len(points) - i if self.reverse else i
                 state = self._add_point(y, state)
         if state:
-            self._add_point(len(points) - 1, False)
+            if self.reverse:
+                self._add_point(0, state)
+            else:
+                self._add_point(len(points), state)
 
     def x_code(self, step):
         return f'X{round(self.x * step, 3):.3f}\n'

@@ -12,7 +12,7 @@ class Point:
         return self.code(1.0)
 
     def code(self, step: float) -> str:
-        return f'Y{round(self.y * step, DECIMAL)}\n{self.ON_STR if self.state else self.OFF_STR}\n'
+        return f'Y{round(self.y * step, DECIMAL):.{DECIMAL}f}\n{self.ON_STR if self.state else self.OFF_STR}\n'
 
 class Line:
     def __init__(self, x, data):

@@ -25,3 +25,9 @@ def test_line_init_rev():
     assert line7.points == [Point(1, True), Point(0, False)]
     line8 = Line(8, [0, 0, 0, 0, 0], True)
     assert line8.points == [Point(5, True), Point(0, False)]
+
+def test_line_code():
+    line9 = Line(9, [255, 255, 0, 255, 255], False)
+    assert line9.code(1.0) == ['X9.000', 'Y2.000', 'M3', 'Y3.000', 'M5']
+    line10 = Line(10, [255, 255, 0, 255, 255], True)
+    assert line10.code(1.0) == ['X10.000', 'Y3.000', 'M3', 'Y2.000', 'M5']

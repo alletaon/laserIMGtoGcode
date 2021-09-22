@@ -17,8 +17,8 @@ class Point:
     def __eq__(self, o: object) -> bool:
         return self.y == o.y and self.state == o.state
 
-    def code(self, step: float) -> str:
-        return f'Y{round(self.y * step, DECIMAL):.{DECIMAL}f}\n{self.ON_STR if self.state else self.OFF_STR}\n'
+    def code(self, step: float) -> 'list[str]':
+        return [f'Y{round(self.y * step, DECIMAL):.{DECIMAL}f}', f'{self.ON_STR if self.state else self.OFF_STR}']
 
 class Line:
     def __init__(self, x: int, data: 'list[int]', reverse: bool):
@@ -48,18 +48,15 @@ class Line:
             else:
                 self._add_point(len(points), state)
 
-    def x_code(self, step):
-        return f'X{round(self.x * step, 3):.3f}\n'
+    def x_code(self, step: float):
+        return f'X{round(self.x * step, DECIMAL):.{DECIMAL}f}'
 
-    def code(self, step):
+    def code(self, step: float) -> 'list[str]':
         result = []
         result.append(self.x_code(step))
-        if self.dir:
-            for p in self.points:
-                result.append(p.code())
-        else:
-            for p in reversed(self.points):
-                result.append(p.code())
+        for p in self.points:
+            result.extend(p.code(step))
+        return result
 
     def __str__(self):
         return f'({self.min}, {self.max})'

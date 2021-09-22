@@ -8,8 +8,8 @@ def test_point_init():
 def test_point_code():
     p1 = Point(10, True)
     p2 = Point(20, False)
-    assert p1.code(1.0) == 'Y10.000\nM3\n'
-    assert p2.code(1.0) == 'Y20.000\nM5\n'
+    assert p1.code(1.0) == ['Y10.000', 'M3']
+    assert p2.code(1.0) == ['Y20.000', 'M5']
 
 def test_point_equal():
     p1 = Point(30, True)

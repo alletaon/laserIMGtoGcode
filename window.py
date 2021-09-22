@@ -36,7 +36,8 @@ class App(tk.Frame):
         if self.im.mode != '1':
             self.im = self.im.convert('1')
         if self.im.width > MAX_IMG_WIDTH or self.im.height > MAX_IMG_HIGHT:
-            self.img = ImageTk.BitmapImage(self.im.resize((MAX_IMG_WIDTH, MAX_IMG_HIGHT)), foreground="white")
+            size = (MAX_IMG_WIDTH, MAX_IMG_HIGHT)
+            self.img = ImageTk.BitmapImage(self.im.resize(size, Image.ANTIALIAS), foreground="white")
         else:
             self.img = ImageTk.BitmapImage(self.im, foreground="white")
         self.la.config(image=self.img, bg="#000000", width=self.img.width(), height=self.img.height())

@@ -39,7 +39,7 @@ class Line:
         state = False
         line = enumerate(reversed(points)) if self.reverse else enumerate(points)
         for i, p in line:
-            if (state and p < 10) or (not state and p > 245):
+            if (state and p == 0) or (not state and p == 255):
                 y = len(points) - i if self.reverse else i
                 state = self._add_point(y, state)
         if state:
@@ -48,19 +48,34 @@ class Line:
             else:
                 self._add_point(len(points), state)
 
+        if self.points:
+            if self.reverse:
+                self.min = self.points[-1].y
+                self.max = self.points[0].y
+            else:
+                self.min = self.points[0].y
+                self.max = self.points[-1].y
+
+    def get_lim(self) -> int:
+        if self.reverse:
+            return self.max
+        return self.min
+
     def x_code(self, step: float):
         return f'X{round(self.x * step, DECIMAL):.{DECIMAL}f}\n'
 
-    def code(self, step: float, allowance: float) -> 'list[str]':
+    def code(self, step: float, allowance: float, nextLim: int, first: bool) -> 'list[str]':
         result = []
         result.append(self.x_code(step))
-        if self.points:
-            if self.reverse:
-                result.append(f'Y{round(self.points[-1].y * step + allowance):.{DECIMAL}f}\n')
-            else:
-                result.append(f'Y{round(self.points[0].y * step - allowance):.{DECIMAL}f}\n')
+        if self.points and first:
+            result.append(f'Y{round(self.min * step - allowance):.{DECIMAL}f}\n')
         for p in self.points:
             result.extend(p.code(step))
+        if self.points and nextLim is not None:
+            if self.reverse:
+                result.append(f'Y{round(min(self.min, nextLim) * step - allowance):.{DECIMAL}f}\n')
+            else:
+                result.append(f'Y{round(max(self.max, nextLim) * step + allowance):.{DECIMAL}f}\n')
         return result
 
     def __str__(self):
@@ -72,7 +87,6 @@ class Layer:
         self.start_x = start_x
         self.start_y = start_y
         self.set_lines(data, width)
-        print()
 
     def set_lines(self, data, width):
         self.lines = []
@@ -90,8 +104,9 @@ class Layer:
         result.append('G64P0.1\n')
         result.append('G0X0Y0\n')
         result.append(f'G90G1F{speed * 60}\n')
-        for line in self.lines:
-            result.extend(line.code(step, allowance))
+        for i, line in enumerate(self.lines):
+            lim = self.lines[i + 1].get_lim() if i < len(self.lines) - 1 else None
+            result.extend(line.code(step, allowance, lim, i == 0))
         result.append('G0X0Y0\n')
         result.append('M30\n')
         return result

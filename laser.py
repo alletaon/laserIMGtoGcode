@@ -51,9 +51,14 @@ class Line:
     def x_code(self, step: float):
         return f'X{round(self.x * step, DECIMAL):.{DECIMAL}f}\n'
 
-    def code(self, step: float) -> 'list[str]':
+    def code(self, step: float, allowance: float) -> 'list[str]':
         result = []
         result.append(self.x_code(step))
+        if self.points:
+            if self.reverse:
+                result.append(f'Y{round(self.points[-1].y * step + allowance):.{DECIMAL}f}\n')
+            else:
+                result.append(f'Y{round(self.points[0].y * step - allowance):.{DECIMAL}f}\n')
         for p in self.points:
             result.extend(p.code(step))
         return result
@@ -79,10 +84,16 @@ class Layer:
             self.lines.append(line)
             reverse = not reverse
 
-    def code(self, step: float) -> 'list[str]':
+    def code(self, step: float, speed: int) -> 'list[str]':
         result = []
+        allowance = speed**2 / (2 * 500)    # S = V**2 / (2 * a), a = 500mm/s*s
+        result.append('G64P0.1\n')
+        result.append('G0X0Y0\n')
+        result.append(f'G90G1F{speed * 60}\n')
         for line in self.lines:
-            result.extend(line.code(step))
+            result.extend(line.code(step, allowance))
+        result.append('G0X0Y0\n')
+        result.append('M30\n')
         return result
 
     def set_start(self, x, y):

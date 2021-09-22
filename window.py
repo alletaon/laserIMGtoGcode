@@ -56,10 +56,7 @@ class App(tk.Frame):
     def set_layer(self, filename):
         self.layer = Layer(0, list(self.im.getdata()), self.im.width)
         out = open(filename, 'w')
-        out.write('G0X0Y0Z0\n')
-        out.write(f'G90G1F{self.speed.get() * 60}\n')
-        out.writelines(self.layer.code(self.step.get()))
-        out.write('M30')
+        out.writelines(self.layer.code(self.step.get(), self.speed.get()))
         out.close()
 
 

@@ -1,8 +1,8 @@
 DECIMAL = 3
 
 class Point:
-    ON_STR = 'M3'
-    OFF_STR = 'M5'
+    ON_STR = 'M62P0'
+    OFF_STR = 'M63P0'
 
     def __init__(self, y: int, state: bool):
         self.y = y

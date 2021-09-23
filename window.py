@@ -57,15 +57,17 @@ class App(tk.Frame):
         self.la.config(image=self.img, bg="#000000", width=self.img.width(), height=self.img.height())
 
     def open(self):
-        filename = filedialog.askopenfilename()
+        filename = filedialog.askopenfilename(filetypes=(("BMP Image", '.bmp'),))
         if filename != "":
             self.im = Image.open(filename)
             self.file_path.set(filename)
             self.chg_image()
 
     def generate(self):
-        filename = filedialog.asksaveasfilename()
+        filename = filedialog.asksaveasfilename(filetypes=(("G code", '.cnc'),))
         if filename != "":
+            if not filename.endswith('.cnc'):
+                filename = filename + '.cnc'
             gen_thread = Thread(target=self.set_layer, args=(filename,))
             gen_thread.start()
 

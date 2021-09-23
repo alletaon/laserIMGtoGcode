@@ -1,4 +1,8 @@
+import math
+
+
 DECIMAL = 3
+ACCELERATION = 500
 
 class Point:
     ON_STR = 'M62P0'
@@ -100,7 +104,7 @@ class Layer:
 
     def code(self, step: float, speed: int) -> 'list[str]':
         result = []
-        allowance = speed**2 / (2 * 500)    # S = V**2 / (2 * a), a = 500mm/s*s
+        allowance = speed**2 / (2 * ACCELERATION)    # S = V**2 / (2 * a), a = 500mm/s*s
         result.append('G64P0.1\n')
         result.append('G0X0Y0\n')
         result.append(f'G90G1F{speed * 60}\n')
@@ -114,6 +118,30 @@ class Layer:
     def set_start(self, x, y):
         self.start_x = x
         self.start_y = y
+
+    def estimate(self, speed, step):
+        result = 0
+        allowance = speed**2 / (2 * ACCELERATION)
+
+        def calc(path):
+            if path > allowance:
+                return math.sqrt(2 * allowance / ACCELERATION) + (path - allowance) / speed
+            return math.sqrt(2 * path / ACCELERATION)
+
+        path_to_start = math.sqrt((self.lines[0].x * step)**2 + (self.lines[0].min * step)**2)
+        result += calc(path_to_start)
+
+        allowance_time = math.sqrt(2 * allowance / ACCELERATION)
+
+        for i, line in enumerate(self.lines):
+            result += (line.max - line.min) * step / speed
+            result += 2 * allowance_time
+            if i < len(self.lines) - 1:
+                result += calc(self.lines[i + 1].x - line.x)
+
+        path_from_end = math.sqrt((self.lines[-1].x * step)**2 + (self.lines[-1].max * step)**2)
+        result += calc(path_from_end)
+        return result
 
     def __str__(self):
         return f'Layer Z: {self.z}'

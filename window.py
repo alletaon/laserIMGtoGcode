@@ -1,5 +1,6 @@
 from PIL import ImageTk, Image
 import tkinter as tk
+import time
 from tkinter import filedialog, ttk
 from laser import Layer
 from threading import Thread
@@ -35,7 +36,7 @@ class App(tk.Frame):
         tk.Label(statusbar, text='Статус генерации: ').pack(side=tk.LEFT, padx=5)
         self.progress = ttk.Progressbar(statusbar, orient='horizontal', mode='determinate', length=150, value=0)
         self.progress.pack(side=tk.LEFT, padx=5)
-        self.time = tk.StringVar()
+        self.time = tk.StringVar(value='00:00:00')
         tk.Entry(statusbar, textvariable=self.time, state=tk.DISABLED).pack(side=tk.RIGHT, padx=5)
         tk.Label(statusbar, text='Время выполнения: ').pack(side=tk.RIGHT, padx=5)
         statusbar.pack(side=tk.BOTTOM, pady=10, fill=tk.BOTH)
@@ -43,6 +44,8 @@ class App(tk.Frame):
         self.pack()
 
     def chg_image(self):
+        self.progress['value'] = 0
+        self.time.set('00:00:00')
         if self.im.mode != '1':
             self.im = self.im.convert('1')
         if self.im.width > MAX_IMG_WIDTH or self.im.height > MAX_IMG_HIGHT:
@@ -73,6 +76,8 @@ class App(tk.Frame):
         out.writelines(self.layer.code(self.step.get(), self.speed.get()))
         out.close()
         self.progress['value'] = 100
+        estimate_time = self.layer.estimate(self.speed.get(), self.step.get())
+        self.time.set(time.strftime('%H:%M:%S', time.gmtime(estimate_time)))
 
 
 if __name__ == "__main__":

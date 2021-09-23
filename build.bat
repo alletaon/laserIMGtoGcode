@@ -1,0 +1,1 @@
+pyinstaller --noconfirm --onedir --windowed --icon "laser.ico" --name "BMPtoGcode" --add-data "laser.ico;."  "window.py"

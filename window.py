@@ -6,8 +6,8 @@ from laser import Layer
 from threading import Thread
 
 
-MAX_IMG_WIDTH = 800
-MAX_IMG_HIGHT = 600
+MAX_IMG_WIDTH = 560
+MAX_IMG_HIGHT = 420
 
 class App(tk.Frame):
     def __init__(self, master=None):
